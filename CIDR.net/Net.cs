@@ -1,4 +1,5 @@
-﻿/**
+﻿
+/**
  * CIDR.cs
  *
  * Utility Functions for IPv4 ip addresses.
@@ -246,6 +247,32 @@ namespace Net
                 return (((long)ip.GetAddressBytes()[0] << 24) | ((long)ip.GetAddressBytes()[1] << 16) | ((long)ip.GetAddressBytes()[2] << 8) | ip.GetAddressBytes()[3]);
             }
             return -1;
+        }
+
+        /**
+        method cidrDevider.
+        Returns an array of splited IPv4 networks.
+        Usage:
+            cidrDevider("127.0.0.0/23", 24);
+        Result:
+            "127.0.0.0/24"
+            "127.0.1.0/24"
+        @param $cidr string CIDR block
+        @param $dstprefix int result prefix
+        @return Array of splited networks.
+	    */
+        public static List<string> cidrDevider(string cidr, int dstprefix) {
+            List<string> listCIDRs = new List<string>();
+            string[] cidra = cidr.Split('/');
+	        string[] range = cidrToRange(cidr);
+	        if (dstprefix < int.Parse(cidra[1])){ throw new ArgumentOutOfRangeException("Invalid Destination Prefix"); }
+            long incr = (long)Math.Pow(2, (32 - dstprefix));
+	        long net = ip2long(range[0]);
+            do {
+                listCIDRs.Add(long2ip(net) + "/" + (long)dstprefix);
+		        net = net + incr;
+	        } while(net <= ip2long(range[1]));
+            return listCIDRs;
         }
 
     }
